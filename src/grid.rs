@@ -177,12 +177,6 @@ impl Grid {
     pub fn update(&mut self) {
         // Vector of next states. It will match by index
         // Get next states
-        // Iterative lags, parallel stronk
-        // let mut next_states = vec![false; self.cells.len()];
-        // for idx in (0..self.cells.len()) {
-        //     let next_state = self.cell_next_state(idx);
-        //     next_states[idx] = next_state;
-        // }
         let next_states = (0..self.cells.len())
             .into_par_iter()
             .map(|idx| {
@@ -191,10 +185,6 @@ impl Grid {
             })
             .collect::<Vec<bool>>();
 
-        // Update states
-        // for idx in 0..self.cells.len() {
-        //     self.cells[idx].alive = next_states[idx];
-        // }
         self.cells = (0..self.cells.len())
             .into_par_iter()
             .map(|idx| Cell::new(next_states[idx]))
