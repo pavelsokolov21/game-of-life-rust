@@ -187,7 +187,7 @@ fn main() -> GameResult {
     // CLI
     let matches = App::new("Game of Life")
         .version("0.2")
-        .author("Zademn")
+        .author("Pavel Sokolov")
         .arg(
             Arg::with_name("width")
                 .short("w")
@@ -245,7 +245,7 @@ fn main() -> GameResult {
     };
 
     // Setup ggez stuff
-    let cb = ContextBuilder::new("Game of life", "Zademn")
+    let cb = ContextBuilder::new("Game of life", "Pavel Sokolov")
         .window_mode(ggez::conf::WindowMode::default().dimensions(screen_size.0, screen_size.1));
     let (ctx, event_loop) = &mut cb.build()?; // `?` because the build function may fail
     graphics::set_window_title(ctx, "Game of life");
