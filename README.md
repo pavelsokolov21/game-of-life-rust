@@ -9,6 +9,16 @@ Below is a walkthrough for the project's code.
 - types.rs
 - main.rs
 
+# How to start
+
+Install Rust on your machine from [the site](https://www.rust-lang.org/).
+
+Open the project in your IDE and run the following command in a console:
+
+```
+cargo run
+```
+
 # Imports
 
 - We import `ggez` for our graphics and `rayon` to parallelize the update functionality. We use `clap` for command line arguments
