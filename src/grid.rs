@@ -162,14 +162,13 @@ impl Grid {
         if probability <= self.dead_probability {
             return false;
         }
-
+        
         return true;
     }
 
     pub fn set_probability(&mut self, idx: usize) {
         let cell = self.cells[idx].clone();
-        if cell.is_alive()
-        {
+        if cell.is_alive() {
             self.cells_probabilities[idx] += 1;
         }
     }
@@ -180,12 +179,11 @@ impl Grid {
         let mut entropy_vec: Vec<f64> = vec![0.0; size];
 
         for idx in 0..size {
-            // На что делить: size?, кол-во прогонов автомата, кол-во установок значений в клетку
             entropy_vec[idx] = self.cells_probabilities[idx] as f64 / self.max_launch_count as f64;
         }
 
         for idx in 0..size {
-            if entropy_vec[idx] != 0.0 {
+            if entropy_vec[idx] > f64::powf(10.0, -3.0) {
                 entropy += entropy_vec[idx] * entropy_vec[idx].log2();
             }
         }
