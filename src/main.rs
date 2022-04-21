@@ -71,9 +71,9 @@ pub struct Config {
     pub fps: u32,
     pub initial_state: String,
     pub max_iterations: usize,
+    pub max_launch_count: usize,
     pub alive_probability: f64,
     pub dead_probability: f64,
-    pub set_probability_point: usize
 }
 
 struct MainState {
@@ -82,15 +82,6 @@ struct MainState {
 }
 impl MainState {
     pub fn new(_ctx: &mut Context, config: Config) -> Self {
-        // Initialize the grid based on configuration
-        let mut grid = Grid::new(
-            config.grid_width,
-            config.grid_height,
-            config.max_iterations,
-            config.dead_probability,
-            config.alive_probability,
-            config.set_probability_point
-        );
         // Initialize starting configuration
         let mut start_cells_coords: Vec<Point> = vec![];
         match &config.initial_state[..] {
@@ -117,8 +108,18 @@ impl MainState {
                 }
             }
         }
+        // Initialize the grid based on configuration
+        let mut grid = Grid::new(
+            config.grid_width,
+            config.grid_height,
+            config.max_iterations,
+            config.max_launch_count,
+            config.dead_probability,
+            config.alive_probability,
+        );
         // Convert the starting states into a vector of points
         grid.set_state(&start_cells_coords);
+        grid.set_initial_state(&start_cells_coords);
         MainState { grid, config }
     }
 }
@@ -229,7 +230,7 @@ fn main() -> GameResult {
         .unwrap();
     let initial_state = matches.value_of("initial_state").unwrap();
     let screen_size = (720., 720.);
-    let fps = 25;
+    let fps = 60;
     // Set configuration
     let config: Config = Config {
         grid_width,
@@ -238,10 +239,10 @@ fn main() -> GameResult {
         screen_size,
         fps,
         initial_state: initial_state.to_string(),
-        max_iterations: 1000,
+        max_iterations: 100,
+        max_launch_count: 1000,
         alive_probability: 0.9,
         dead_probability: 0.97,
-        set_probability_point: 30,
     };
 
     // Setup ggez stuff

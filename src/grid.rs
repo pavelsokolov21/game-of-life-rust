@@ -6,14 +6,15 @@ use rayon::prelude::*;
 pub struct Grid {
     width: usize,
     height: usize,
+    pub initial_cells: Vec<Cell>,
     pub cells: Vec<Cell>,
     pub cells_probabilities: Vec<usize>,
     pub iteration: usize,
+    pub launch_count: usize,
     pub max_iterations: usize,
+    pub max_launch_count: usize,
     pub dead_probability: f64,
     pub alive_probability: f64,
-    pub set_probability_point: usize,
-    pub count_of_set_points: usize
 }
 
 impl Grid {
@@ -22,23 +23,25 @@ impl Grid {
         width: usize,
         height: usize,
         max_iterations: usize,
+        max_launch_count: usize,
         dead_probability: f64,
         alive_probability: f64,
-        set_probability_point: usize,
     ) -> Self {
         Self {
             width,
             height,
+            initial_cells: vec![Cell::new(false); width * height],
             cells: vec![Cell::new(false); width * height],
             cells_probabilities: vec![0; width * height],
             iteration: 0,
-            max_iterations: max_iterations,
-            dead_probability: dead_probability,
-            alive_probability: alive_probability,
-            set_probability_point: set_probability_point,
-            count_of_set_points: max_iterations / set_probability_point
+            launch_count: 0,
+            max_iterations,
+            max_launch_count,
+            dead_probability,
+            alive_probability,
         }
     }
+    // These functions are using in the main.rs
     pub fn set_state(&mut self, cells_coords: &[Point]) {
         self.cells = vec![Cell::new(false); self.width * self.height];
         for &pos in cells_coords.iter() {
@@ -46,6 +49,22 @@ impl Grid {
             self.cells[idx].set_state(true);
         }
     }
+    pub fn set_initial_state(&mut self, cells_coords: &[Point]) {
+        self.initial_cells = vec![Cell::new(false); self.width * self.height];
+        for &pos in cells_coords.iter() {
+            let idx = self.coords_to_index(pos);
+            self.cells[idx].set_state(true);
+        }
+    }
+
+    pub fn reset_state(&mut self) {
+        for i in 0..self.initial_cells.len() {
+            let cell = self.initial_cells[i].clone();
+            self.cells[i] = cell;
+        }
+        self.iteration = 0;
+    }
+
     fn cell_next_state(&self, cell_idx: usize) -> bool {
         let cell = self.cells[cell_idx].clone();
         let cell_pos = self.index_to_coords(cell_idx);
@@ -149,7 +168,7 @@ impl Grid {
 
     pub fn set_probability(&mut self, idx: usize) {
         let cell = self.cells[idx].clone();
-        if self.iteration % self.set_probability_point == 0 && self.iteration != self.max_iterations + 1 && cell.is_alive()
+        if cell.is_alive()
         {
             self.cells_probabilities[idx] += 1;
         }
@@ -162,7 +181,7 @@ impl Grid {
 
         for idx in 0..size {
             // На что делить: size?, кол-во прогонов автомата, кол-во установок значений в клетку
-            entropy_vec[idx] = self.cells_probabilities[idx] as f64 / self.count_of_set_points as f64;
+            entropy_vec[idx] = self.cells_probabilities[idx] as f64 / self.max_launch_count as f64;
         }
 
         for idx in 0..size {
@@ -190,16 +209,25 @@ impl Grid {
             .map(|idx| Cell::new(next_states[idx]))
             .collect::<Vec<Cell>>();
 
-        for idx in 0..self.cells.len() {
-            self.set_probability(idx);
+        if self.iteration == self.max_iterations {
+            for idx in 0..self.cells.len() {
+                self.set_probability(idx);
+            }
+            println!("{}", self.launch_count)
         }
 
-        if self.iteration == self.max_iterations + 1 {
+        if self.max_launch_count == self.launch_count {
             self.calculate_entropy();
         }
 
-        self.iteration += 1;
+        if self.iteration == self.max_iterations + 1 {
+            self.reset_state();
+            self.launch_count += 1;
+        } else {
+            self.iteration += 1;
+        }
     }
+
     /// Converts a pair of cell coords to index in the cells vector
     pub fn coords_to_index(&self, pos: Point) -> usize {
         pos.y * self.width + pos.x
