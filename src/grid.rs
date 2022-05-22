@@ -55,6 +55,7 @@ impl Grid {
             let idx = self.coords_to_index(pos);
             self.cells[idx].set_state(true);
         }
+        self.initial_cells = self.cells.clone();
     }
 
     pub fn reset_state(&mut self) {
@@ -162,7 +163,7 @@ impl Grid {
         if probability <= self.dead_probability {
             return false;
         }
-        
+
         return true;
     }
 
@@ -188,7 +189,7 @@ impl Grid {
             }
         }
 
-        println!("{}", -entropy);
+        println!("entropy: {}", -entropy);
     }
 
     pub fn update(&mut self) {
@@ -211,7 +212,7 @@ impl Grid {
             for idx in 0..self.cells.len() {
                 self.set_probability(idx);
             }
-            println!("{}", self.launch_count)
+            println!("launches: {}", self.launch_count)
         }
 
         if self.max_launch_count == self.launch_count {
