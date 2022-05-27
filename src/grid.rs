@@ -189,7 +189,7 @@ impl Grid {
             }
         }
 
-        println!("entropy: {}", -entropy);
+        println!("entropy: {}", f64::abs(entropy));
     }
 
     pub fn update(&mut self) {
@@ -212,11 +212,11 @@ impl Grid {
             for idx in 0..self.cells.len() {
                 self.set_probability(idx);
             }
-            println!("launches: {}", self.launch_count)
-        }
+            println!("launches: {}", self.launch_count);
 
-        if self.max_launch_count == self.launch_count {
-            self.calculate_entropy();
+            if self.max_launch_count == self.launch_count {
+                self.calculate_entropy();
+            }
         }
 
         if self.iteration == self.max_iterations + 1 {
